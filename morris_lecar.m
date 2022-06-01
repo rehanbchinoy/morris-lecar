@@ -93,7 +93,7 @@ sfh2.Position = sfh2.Position - [0.1, 0, 0, 0];
 % figure_save(fig, fname)
 
 
-function dXdt = MorrisLecar(X, varargin)
+function [dXdt, I_kir] = MorrisLecar(X, varargin)
     V    = X(1);
     N    = X(2);
     
@@ -120,12 +120,18 @@ function dXdt = MorrisLecar(X, varargin)
     Minf = Sigm(V, V1, V2);
     Ninf = Sigm(V, V3, V4);
     
+    % KIR calculation
+    f_kir = 0.12979 * (V - VK)/(1+exp(0.093633 * (V+72))); % experimental parameters from paper
+    P_3 = Sigmoid(V); % parameters for Sigmoid are in function
+    I_kir = C * P_3 * f_kir; 
+
     dVdt = 1/C * (- gL  * (V - VL) ...
                   - gCa * Minf * (V - VCa) ...
-                  - gK  * N  * (V - VK) + Iext);
+                  - gK  * N  * (V - VK) + Iext + I_kir);
     dNdt =  Lambda(V, V3, V4, phi) * (Ninf - N);
 
     dXdt = [dVdt, dNdt];
+
 end
 
 function val = Sigm(V, V1, V2)
@@ -151,4 +157,18 @@ function X_next = runge_kutta(X_now, dt, func, varargin)
     k4     = func(X_k4, varargin);
 
     X_next = X_now + (dt/6)*(k1 + 2*k2 + 2*k3 + k4);
+end
+
+function S = Sigmoid(V)
+	b1 = -110;
+    b2_first = 20;
+    b2_second = 10;
+
+    if V < -110
+        b2 = b2_first;
+    else
+        b2 = b2_second;
+    end
+
+	S = 1 ./ (1 + exp((b1 - V)/b2)); 
 end
