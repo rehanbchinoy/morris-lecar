@@ -18,24 +18,10 @@ time   = linspace(0, Nt-1, Nt) * dt; % time vector; unit : msec
 %%%%% parameter settings
 %%% typical parameter setting for Type I mode
 
-% C    =  5e-10; %5;  % (1e-10 Farad)
-% gL   =  2e-9; % (1e-9)
-% gK   =  8e-9; %
-% gCa  =  4e-9;
-% VL   = -60e-3; % mV
-% VK   = -86.9e-3; % -80 was default
-% VCa  =  120e-3;
-% V1   = -1.2;
-% V2   =  18;
-% V3   =  12;
-% V4   =  17.4;
-% Iext =  39.8e-12; % 39.8; (1e-12)
-% phi  =  1/15;
 
-
-C    =  5; %5;  % (1e-10 Farad)
+C    =  5; %5;  % (1e-12 or 1e-10 Farad)
 gL   =  2; % (1e-9)
-gK   =  8; %
+gK   =  8;
 gCa  =  4;
 VL   = -60; % mV
 VK   = -86.9; % -80 was default
@@ -44,7 +30,7 @@ V1   = -1.2;
 V2   =  18;
 V3   =  12;
 V4   =  17.4;
-Iext =  39.8; % 39.8; (1e-12)
+Iext =  50; % 39.8; (1e-9 or 1e-12)
 phi  =  1/15;
 
 
@@ -137,12 +123,12 @@ function [dXdt, I_kir] = MorrisLecar(X, varargin)
     % KIR calculation
     f_kir = 0.12979 * (V - VK)/(1+exp(0.093633 * (V+72))); % experimental parameters from paper
     P_3 = Sigmoid(V); % parameters for Sigmoid are in function
-    I_kir = 3 * C * P_3 * f_kir; 
+    I_kir = C * P_3 * f_kir; 
+    disp(I_kir);
     
     dVdt = 1/C * (- gL  * (V - VL) ...
                   - gCa * Minf * (V - VCa) ...
                   - gK  * N  * (V - VK) + Iext + I_kir);
-    disp(gK  * N  * (V - VK))
     dNdt =  Lambda(V, V3, V4, phi) * (Ninf - N);
 
     dXdt = [dVdt, dNdt];
