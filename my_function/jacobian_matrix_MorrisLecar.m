@@ -21,9 +21,19 @@ function J = jacobian_matrix_MorrisLecar(X, varargin)
     V4   = par{11};
     Iext = par{12};
     phi  = par{13}; 
+    with_kir = par{14}; % true or false
 
     Minf = Sigm(V, V1, V2);
     Ninf = Sigm(V, V3, V4);
+
+    if with_kir
+        % KIR calculation
+        f_kir = 0.12979 * (V - VK)/(1+exp(0.093633 * (V+72))); % experimental parameters from paper
+        P_3 = Sigmoid(V); % parameters for Sigmoid are in function
+        I_kir = 100 * C * P_3 * f_kir; 
+    else
+        I_kir = 0;
+    end
 
     dF1dV =  1/C * (-gCa*( 2/V2*Minf*(1-Minf)*(V-VCa) + Minf ) - gK*N - gL);
     dF1dN = -1/C * gK * (V - VK);
@@ -44,4 +54,18 @@ end
 
 function lambda = Lambda(V, V1, V2, phi)
     lambda = phi * cosh((V-V1)/(2*V2));
+end
+
+function S = Sigmoid(V)
+	b1 = -110;
+    b2_first = 20;
+    b2_second = 10;
+
+    if V < -110
+        b2 = b2_first;
+    else
+        b2 = b2_second;
+    end
+
+	S = 1 ./ (1 + exp((b1 - V)/b2)); 
 end

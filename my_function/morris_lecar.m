@@ -168,7 +168,7 @@ function [dXdt, I_kir] = MorrisLecar(X, varargin)
     % KIR calculation
     f_kir = 0.12979 * (V - VK)/(1+exp(0.093633 * (V+72))); % experimental parameters from paper
     P_3 = Sigmoid(V); % parameters for Sigmoid are in function
-    I_kir = 10 * C * P_3 * f_kir; 
+    I_kir = 100 * C * P_3 * f_kir; 
     else
         I_kir = 0;
     end
