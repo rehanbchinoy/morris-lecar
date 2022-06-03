@@ -48,7 +48,6 @@ Iext =  40; % 39.8; (1e-12)
 phi  =  1/15;
 
 
-
 %%% typical parameter setting for Type II mode
 % C    =  5;
 % gL   =  2;
@@ -76,11 +75,11 @@ with_kir = true;
 for i = 2:Nt
     X_now  = X(i-1,:);
     %%%%% Numerical integral scheme with 4th order Runge Kutta method
-    [X(i,:),kir(i)] = runge_kutta(X_now, dt, @MorrisLecar, ...
+    [X(i,:), kir(i)] = runge_kutta(X_now, dt, @MorrisLecar, ...
                                     C, gL, gK, gCa,...
                                        VL, VK, VCa,...
                                        V1, V2, V3, V4,...
-                                       Iext, phi,with_kir);
+                                       Iext, phi, with_kir);
 end
 
 %% plot
@@ -114,7 +113,7 @@ plot(time, kir, 'LineWidth', 3);
 X2      = zeros(Nt, length(X0));
 X2(1,:) = X0;
 kir(1) = 0;
-with_kir = false;
+with_kir = true;
 for i = 2:Nt
     X_now  = X(i-1,:);
     %%%%% Numerical integral scheme with 4th order Runge Kutta method
