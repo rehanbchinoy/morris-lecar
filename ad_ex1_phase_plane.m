@@ -12,10 +12,12 @@ set(0,'defaultTextFontName','Arial');
 
 set(0,'defaultUipanelFontName','Arial');
 set(0,'defaultUicontrolFontName','Arial');
-%%
+
+%% Simulation parameters
 Nt     = 50000;  % Num. of sample
 dt     = 0.01;   % time step for numerical integration; unit : msec
 time   = linspace(0, Nt-1, Nt) * dt; % time vector; unit : msec
+
 %%%%% parameter settings
 %%% typical parameter setting for Type I mode
 C    =  5;
@@ -47,6 +49,10 @@ phi  =  1/15; %unit: 1/msec
 % Iext =  82;
 % phi  =  1/25; %unit: 1/msec 
 
+% KIR ADDITION
+with_kir = true;
+
+
 X0     = [0, 0]; % initial value of state variables
                  % X0(1): membrane potential, v
                  % X0(2): recovery variable,  w
@@ -62,7 +68,7 @@ for i = 2:Nt
                                          C, gL, gK, gCa,...
                                          VL, VK, VCa,...
                                          V1, V2, V3, V4,...
-                                         Iext, phi);
+                                         Iext, phi, with_kir);
 end
 %% Get Nullcline
 [V_null, N_null] = get_nullcline_MorrisLecar(gL, gK, gCa,...
@@ -82,7 +88,7 @@ for i = 1:length(x_init)
     Xtmp = newton_method(x0, @MorrisLecar, 1E-16, 5000, C, gL, gK, gCa,...
                                                         VL, VK, VCa,...
                                                         V1, V2, V3, V4,...
-                                                        Iext, phi);
+                                                        Iext, phi, with_kir);
     X_eq(i,:) = Xtmp;
 end
 
@@ -105,7 +111,7 @@ for i = 1:length(v_eq)
     J = jacobian_matrix_MorrisLecar(X, C, gL, gK, gCa, ...
                                        VL, VK, VCa,...
                                        V1, V2, V3, V4,...
-                                       Iext, phi);
+                                       Iext, phi, with_kir);
     [eigvec, eigvalue] = eig(J);
     eigvalue = diag(eigvalue);
     
