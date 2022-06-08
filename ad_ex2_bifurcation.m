@@ -12,46 +12,53 @@ set(0,'defaultTextFontName','Arial');
 
 set(0,'defaultUipanelFontName','Arial');
 set(0,'defaultUicontrolFontName','Arial');
-%%
+
+%% Simulation parameters
 Nt     = 50000;  % Num. of sample
 dt     = 0.01;   % time step for numerical integration; unit : msec
 time   = linspace(0, Nt-1, Nt) * dt; % time vector; unit : msec
+
 %%%%% parameter settings
 %%% typical parameter setting for Type I mode
-% C    =  5;
-% gL   =  2;
-% gK   =  8;
-% gCa  =  4;
-% VL   = -60;
-% VK   = -80;
-% VCa  =  120;
-% V1   = -1.2;
-% V2   =  18;
-% V3   =  12;
-% V4   =  17.4;
-% Iext =  -10:2:150;
-% phi  =  1/15; %unit: 1/msec 
-
-%%% typical parameter setting for Type II mode
 C    =  5;
 gL   =  2;
 gK   =  8;
-gCa  =  4.4;
+gCa  =  4;
 VL   = -60;
-VK   = -80;
+VK   = -86.9; %-80 was default;
 VCa  =  120;
 V1   = -1.2;
 V2   =  18;
-V3   =  2;
-V4   =  30;
-Iext =  0:5:240;
-phi  =  1/25; %unit: 1/msec 
+V3   =  12;
+V4   =  17.4;
+Iext =  -10:2:150;
+phi  =  1/15; %unit: 1/msec 
+
+%%% typical parameter setting for Type II mode
+% C    =  5;
+% gL   =  2;
+% gK   =  8;
+% gCa  =  4.4;
+% VL   = -60;
+% VK   = -86.9; %80
+% VCa  =  120;
+% V1   = -1.2;
+% V2   =  18;
+% V3   =  2;
+% V4   =  30;
+% Iext =  0:5:240;
+% phi  =  1/25; %unit: 1/msec 
+
+% KIR ADDITION
+with_kir = false;
+
 
 X0     = [0, 0]; % initial value of state variables
                  % X0(1): membrane potential, v
                  % X0(2): recovery variable,  w
+
+                 
 %%%%% parameter settings
-%%
 color_list  = turbo(6);
 eqpt_labels = {};
 eqpt_idx    = [];
@@ -73,10 +80,10 @@ for i = 1:length(Iext)
         Xtmp = newton_method(x0, @MorrisLecar, 1E-16, 5000, C, gL, gK, gCa,...
                                                             VL, VK, VCa,...
                                                             V1, V2, V3, V4,...
-                                                            Iext(i), phi);
+                                                            Iext(i), phi, with_kir);
         X_eq(k1,:) = Xtmp;
     end
-    %%% Extract unique solution within torelance
+    %%% Extract unique solution within tolerance
     tmpval = uniquetol(X_eq(:,2), 0.05);
     v_eq   = zeros(1, length(tmpval));
     n_eq   = zeros(1, length(tmpval));
@@ -95,7 +102,7 @@ for i = 1:length(Iext)
         J = jacobian_matrix_MorrisLecar(X, C, gL, gK, gCa,...
                                            VL, VK, VCa,...
                                            V1, V2, V3, V4,...
-                                           Iext(i), phi);
+                                           Iext(i), phi, with_kir);
         [eigvec, eigvalue] = eig(J);
         eigvalue           = diag(eigvalue);
         
@@ -168,7 +175,7 @@ for i = 1:length(Iperi)
         X(j,:) = runge_kutta(X_now, dt, @MorrisLecar, C, gL, gK, gCa,...
                                                       VL, VK, VCa,...
                                                       V1, V2, V3, V4,...
-                                                      Iperi(i), phi);
+                                                      Iperi(i), phi, with_kir);
     end
     
     Vmaxmin(i,:) = [min(X(:,1)), max(X(:,1))];
@@ -199,6 +206,7 @@ for i = 1:6
 end
 xlabel('parameter \it I')
 ylabel('Membrane potential V_*')
+ylim([-70, 60])
 legend('location', 'southeastoutside')
 
 fname = [filepath, filesep, 'figures', filesep, 'ad_ex2', filesep, 'bifurcation'];
